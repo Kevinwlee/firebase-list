@@ -55,7 +55,7 @@
       
     <!-- Mustache Templates -->
     <script id="item-template" type="x-tmpl-mustache">
-      <li data-key="{{key}}"><span class="text">{{text}}</span><div class="btn btn-warning btn-xs pull-right delete"> <i class="glyphicon glyphicon-trash"></i></div></li>
+      <li id="{{key}}" data-key="{{key}}"><span class="text">{{text}}</span><div class="btn btn-warning btn-xs pull-right delete"> <i class="glyphicon glyphicon-trash"></i></div></li>
     </script>
 
     <!-- App -->
@@ -71,12 +71,29 @@
       function (errorObject) {
         console.log("The read failed: " + errorObject.code);
       });
-      
-      function save(text){
-        var data={key:"some-key", text:text}
+
+      fb.child("lists").on("child_added", function(snapshot){
+        var text = snapshot.val();
+        var key = snapshot.key();
+        var data ={key:key, text:text};
         var template = $("#item-template").html();
         var rendered = Mustache.render(template, data);
         $('#item-list').prepend(rendered);
+        
+        console.log(data);
+      });
+      
+      fb.child("lists").on("child_removed", function(snapshot){
+        var data = snapshot.val();
+        var key = snapshot.key();
+        var selector = "#"+key
+        var $li = $(selector);
+        $li.remove();
+        console.log(data);
+      });
+      
+      function save(text){
+        fb.child("lists").push(text);
       }
 
       $("#item-add").click(function(e){        
@@ -99,8 +116,10 @@
         var $target = $(e.target);
         var $li = $target.parents("li")        
         var key = $li.attr("data-key");
-      
-        $li.remove();
+        fb.child("lists").child(key).remove(function(error){
+          
+        });
+        
       });
     
     </script>      
