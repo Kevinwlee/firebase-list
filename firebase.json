@@ -1,0 +1,9 @@
+{
+  "firebase": "chaionelists",
+  "public": ".",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}

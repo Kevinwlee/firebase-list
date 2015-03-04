@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Simple List Demo</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSS modifications -->
+    <link rel="stylesheet" href="css/list.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    
+    <div class="container">
+      <h1>List Demo <small>yay :)</small></h1>
+      <br>
+      
+      <div class="row">
+        
+        <div class="col-md-6 col-xs-8">
+          
+          <form class="item-form">
+            <input id="item-text" type="text" value="" name="item-text" class="item-input" tab-index="0">
+            <div id="item-add" class="btn btn-success bt-sm pull-right" tab-index="1">Add</div>
+          </form>
+          <br><br>
+          <ul id="item-list" class="list">              
+          </ul>
+        </div> <!-- end column -->       
+      </div> <!-- end row -->
+        
+    </div><!-- /.container -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- mustache -->
+    <script src="js/mustache.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
+      
+    <!-- Mustache Templates -->
+    <script id="item-template" type="x-tmpl-mustache">
+      <li data-key="{{key}}"><span class="text">{{text}}</span><div class="btn btn-warning btn-xs pull-right delete"> <i class="glyphicon glyphicon-trash"></i></div></li>
+    </script>
+
+    <!-- App -->
+    <script type="text/javascript">
+
+      //Create a refernce
+      var fb = new Firebase("https://chaionelists.firebaseio.com/");                
+
+      // Attach an asynchronous callback to read the data at our posts reference
+      fb.on("value", function(snapshot) {
+        console.log(snapshot.val());
+      }, 
+      function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+      
+      function save(text){
+        var data={key:"some-key", text:text}
+        var template = $("#item-template").html();
+        var rendered = Mustache.render(template, data);
+        $('#item-list').prepend(rendered);
+      }
+
+      $("#item-add").click(function(e){        
+        var text = $("#item-text").val();
+        save(text); 
+        $("#item-text").val("");
+      });
+  
+      $("form").submit(function(e){
+        e.preventDefault()
+      
+        var text = $("#item-text").val();
+        save(text);
+      
+        $("#item-text").val("");
+      });
+    
+      //bind to new the delete buttons
+      $("#item-list").on("click", "li div.delete", function(e){
+        var $target = $(e.target);
+        var $li = $target.parents("li")        
+        var key = $li.attr("data-key");
+      
+        $li.remove();
+      });
+    
+    </script>      
+  </body>
+</html>

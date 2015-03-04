@@ -1,0 +1,14 @@
+.list > li {
+  position: relative;
+  margin-bottom: 1em;
+  line-height: 1.5em;
+  font-size:1.4em;
+}
+
+.item-form {
+  padding-left:2.8em;
+}
+
+.item-input{
+  width:80%;
+}
