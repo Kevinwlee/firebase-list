@@ -8,16 +8,9 @@
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-  
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-  
-    <!-- Firebase -->
-    <script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
-
+    
+    <!-- CSS modifications -->
+    <link rel="stylesheet" href="css/list.css">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -33,22 +26,63 @@
       <div class="starter-template">
         <h1>List Viewer</h1>
         <div>
-          <ul>
-              <li>kevin</li>
-              <li>was</li>
-              <li>here</li>
+          <ul id="item-list" class="list">              
           </ul>
         </div>
       </div>
 
     </div><!-- /.container -->
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
-  
-    <script type="text/javascript">
-      //Create a refernce
-      var fb = new Firebase("https://chaionelists.firebaseio.com/");
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- mustache -->
+    <script src="js/mustache.min.js"></script>
+
+    <!-- Firebase -->
+    <script src="https://cdn.firebase.com/js/client/2.2.1/firebase.js"></script>
       
-      
+    <!-- Mustache Templates -->
+    <script id="item-template" type="x-tmpl-mustache">
+      <li id="{{key}}" data-key="{{key}}"><span class="text">{{text}}</span></li>
     </script>
+
+    <!-- App -->
+    <script type="text/javascript">
+
+      //Create a refernce
+      var fb = new Firebase("https://chaionelists.firebaseio.com/");                
+
+      // Attach an asynchronous callback to read the data at our posts reference
+      fb.on("value", function(snapshot) {
+        console.log(snapshot.val());
+      }, 
+      function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+      });
+
+      fb.child("lists").on("child_added", function(snapshot){
+        var text = snapshot.val();
+        var key = snapshot.key();
+        var data ={key:key, text:text};
+        var template = $("#item-template").html();
+        var rendered = Mustache.render(template, data);
+        $('#item-list').prepend(rendered);
+        
+        console.log(data);
+      });
+      
+      fb.child("lists").on("child_removed", function(snapshot){
+        var data = snapshot.val();
+        var key = snapshot.key();
+        var selector = "#"+key
+        var $li = $(selector);
+        $li.remove();
+        console.log(data);
+      });
+    </script>  
   </body>
 </html>
