@@ -64,7 +64,8 @@
       //Create a refernce
       var fb = new Firebase("https://chaionelists.firebaseio.com/");                
 
-      // Attach an asynchronous callback to read the data at our posts reference
+      // Attach an asynchronous callback to read the data at our reference
+      // Called everytime a change is made to this ref or any of its children.
       fb.on("value", function(snapshot) {
         console.log(snapshot.val());
       }, 
@@ -72,10 +73,12 @@
         console.log("The read failed: " + errorObject.code);
       });
 
+      // Attach an asynchronous callback to read the data at our reference
       fb.child("lists").on("child_added", function(snapshot){
         var text = snapshot.val();
         var key = snapshot.key();
-        var data ={key:key, text:text};
+
+        var data ={key:key, text:text};        
         var template = $("#item-template").html();
         var rendered = Mustache.render(template, data);
         $('#item-list').prepend(rendered);
@@ -86,14 +89,20 @@
       fb.child("lists").on("child_removed", function(snapshot){
         var data = snapshot.val();
         var key = snapshot.key();
+        
         var selector = "#"+key
         var $li = $(selector);
         $li.remove();
+        
         console.log(data);
       });
       
       function save(text){
         fb.child("lists").push(text);
+      }
+      
+      function deleteItem(key) {
+        fb.child("lists").child(key).remove(function(error){});        
       }
 
       $("#item-add").click(function(e){        
@@ -111,15 +120,12 @@
         $("#item-text").val("");
       });
     
-      //bind to new the delete buttons
+      //bind to delete buttons
       $("#item-list").on("click", "li div.delete", function(e){
         var $target = $(e.target);
         var $li = $target.parents("li")        
         var key = $li.attr("data-key");
-        fb.child("lists").child(key).remove(function(error){
-          
-        });
-        
+        deleteItem(key);
       });
     
     </script>      

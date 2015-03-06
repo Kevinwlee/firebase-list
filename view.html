@@ -56,17 +56,12 @@
       //Create a refernce
       var fb = new Firebase("https://chaionelists.firebaseio.com/");                
 
-      // Attach an asynchronous callback to read the data at our posts reference
-      fb.on("value", function(snapshot) {
-        console.log(snapshot.val());
-      }, 
-      function (errorObject) {
-        console.log("The read failed: " + errorObject.code);
-      });
+      // Attach an asynchronous callback to read the data at our reference
 
       fb.child("lists").on("child_added", function(snapshot){
         var text = snapshot.val();
         var key = snapshot.key();
+        
         var data ={key:key, text:text};
         var template = $("#item-template").html();
         var rendered = Mustache.render(template, data);
@@ -78,9 +73,11 @@
       fb.child("lists").on("child_removed", function(snapshot){
         var data = snapshot.val();
         var key = snapshot.key();
+        
         var selector = "#"+key
         var $li = $(selector);
         $li.remove();
+        
         console.log(data);
       });
     </script>  
